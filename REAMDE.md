@@ -16,12 +16,15 @@
                                      │
                                      ▼
                     ┌────────────────────────────────┐
-                    │         HashiCorp Vault         │
-                    │   - Secret storage & rotation   │
-                    │   - Issues MySQL credentials    │
+                    │         HashiCorp Vault        │
+                    │   - Secret storage & rotation  │
+                    │   - Issues MySQL credentials   │
                     └────────────────────────────────┘
-                                     │
-                                     ▼
+                          │                   |
+                          |                   |                           
+                          |                   |  
+                          |                   | 
+                          ▼                   ▼
            ┌──────────────────────┐        ┌────────────────────────┐
            │  Python Log Collector│        │ Python Bokeh Dashboard │
            │ (Docker Container)   │        │ (Docker Container)     │
@@ -29,14 +32,14 @@
            │  - Writes to MySQL   │        │  - Displays metrics    │
            │  - Auth via Vault    │        │  - Auth via Vault      │
            └─────────┬────────────┘        └──────────────┬─────────┘
-                     │                                    │
-                     ▼                                    ▼
-           ┌────────────────────────┐          ┌────────────────────────┐
-           │   MySQL Primary        │<--rep--->│   MySQL Replica        │
-           │   (writes from coll.)  │          │   (reads by Bokeh)     │
-           └────────────────────────┘          └────────────────────────┘
-                     ▲
-                     │
+              ▲      │                                    │
+              │      │                                    ▼
+              │      │                       ┌────────────────────────┐          ┌────────────────────────┐
+              │      └──────────────────────>│   MySQL Primary        │<--rep--->│   MySQL Replica        │
+              │                              │   (writes from coll.)  │          │   (reads by Bokeh)     │
+              │                              └────────────────────────┘          └────────────────────────┘
+              │       
+              │
      ┌──────────────────────────────────────────────┐
      │         VM Fleet (Each VM = Dockerized API)  │
      │----------------------------------------------│
