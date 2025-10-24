@@ -3,6 +3,7 @@ services:
   primary_db:
     image: mysql:latest
     container_name: "infralogDbPrim"
+    restart: always
     ports:
       - "3306:3306"
     environment:
@@ -14,5 +15,12 @@ services:
     volumes:
       - ./db_init:/docker-entrypoint-initdb.d
       - ./infralog_data:/var/lib/mysql
+
+    command:
+      --server-id=1
+      --log-bin=mysql-bin
+      --bind-address=0.0.0.0
+      --binlog-do-db=my_app_db
+
 volumes:
-  infralog_data:
+  primary_data:
