@@ -1,0 +1,26 @@
+
+services:
+  primary_db:
+    image: mysql:latest
+    container_name: "infralogDbPrim"
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: Fox77Fire**
+      MYSQL_DATABASE: infralogDb01
+      MYSQL_USER: db1-user
+      MYSQL_PASSWORD: Death77Star**
+    volumes:
+      - ./db_init:/docker-entrypoint-initdb.d
+      - ./infralog_data:/var/lib/mysql
+
+    command:
+      --server-id=1
+      --log-bin=mysql-bin
+      --bind-address=0.0.0.0
+      --binlog-do-db=my_app_db
+
+volumes:
+  primary_data:
