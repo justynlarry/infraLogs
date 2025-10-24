@@ -2,7 +2,7 @@
 services:
   primary_db:
     image: mysql:latest
-    container_name: "infralogDbContainer01"
+    container_name: "infralogDbPrim"
     ports:
       - "3306:3306"
     environment:
@@ -13,6 +13,6 @@ services:
       MYSQL_PASSWORD: Death77Star**
     volumes:
       - ./db_init:/docker-entrypoint-initdb.d
-      - /home/db1-user/infralog/infralog_data:/var/lib/mysql
+      - ./infralog_data:/var/lib/mysql
 volumes:
   infralog_data:
