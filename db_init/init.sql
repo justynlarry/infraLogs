@@ -1,7 +1,7 @@
     CREATE DATABASE IF NOT EXISTS infralogDb01;
     USE infralogDb01;
 
-    CREATE TABLE IF NOT EXISTS  (
+    CREATE TABLE IF NOT EXISTS log_table (
         id INT AUTO_INCREMENT PRIMARY KEY,
         record_time VARCHAR(75) NOT NULL UNIQUE,
         message VARCHAR(255) NOT NULL,
