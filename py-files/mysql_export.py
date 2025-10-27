@@ -1,6 +1,6 @@
 import mysql.connector
 import os
-from log_collector import parse_journalctl_verbose_today_filtered
+from log_collector import parse_journalctl_verbose_today_filtered, TARGET_KEYS
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,20 +9,31 @@ DB_HOST = os.environ.get("MYSQL_HOST")
 DB_USER = os.environ.get("MYSQL_USER")
 DB_PASSWORD= os.environ.get("MYSQL_PASSWORD")
 DB_NAME = os.environ.get("MYSQL_DATABASE")
+DB_PORT = os.environ.get("MYSQL_PORT", 3306)
 TABLE_NAME = "log_table"
+
+mydb = None
+mycursor = None
+connection_successful = False
 
 # --- Database Connection and Setup ---
 try:
     if not all([DB_HOST, DB_USER, DB_PASSWORD, DB_NAME]):
+       raise ValueError("Missing one or more required environment variables for MySQL connection.")
+
         # 1.  Establish Connection
-        mydb = mysql.connector.connect (
-            host=DB_HOST,
-            user=DB_USER,
-            password=DB_PASSWORD,
-            database=DB_NAME
-        )
-        # 2. Set Cursor Object to execute SQL Queries
-        mycursor = mydb.cursor()
+    mydb = mysql.connector.connect (
+        host=DB_HOST,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        database=DB_NAME,
+        port=int(DB_PORT),
+        auth_plugin='mysql_native_password'
+    )
+    # 2. Set Cursor Object to execute SQL Queries
+    mycursor = mydb.cursor()
+    print("mySQL connection established successfully.")
+    connection_successful = True
 
 except mysql.connector.Error as err:
     print(f"Database Connection Error: {err}")
@@ -30,6 +41,10 @@ except mysql.connector.Error as err:
     exit(1)
 except ValueError as err:
     print(f"Configuration Error: {err}")
+    exit(1)
+
+if not connection_successful:
+    print("FATAL: Skipping data insertion due to connection or configuration error.")
     exit(1)
 
 # 3. Retrieve Log Data
@@ -70,10 +85,13 @@ try:
 
 except mysql.connector.Error as err:
     print(f"SQL Insertion Error: {err}")
-    mydb.rollback()
+    if mydb:
+        mydb.rollback()
 
 finally:
 # Close out 
-    mycursor.close()
-    mydb.close()
+    if mycursor:
+        mycursor.close()
+    if mydb:
+        mydb.close()
     print("Database connection closed.")
