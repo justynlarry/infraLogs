@@ -95,7 +95,7 @@ Begin turning Password Rotator System into a Modular 'Plug In', that can be expo
 
 # Logs Quick Reference:
  Quick Reference
-111
+```
 Code	Level Name	  Meaning
 0	    emerg	        System is unusable
 1	    alert  	      Immediate action required
