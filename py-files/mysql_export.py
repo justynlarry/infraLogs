@@ -11,34 +11,69 @@ DB_PASSWORD= os.environ.get("MYSQL_PASSWORD")
 DB_NAME = os.environ.get("MYSQL_DATABASE")
 TABLE_NAME = "log_table"
 
-mydb = mysql.connector.connect (
-    host=DB_HOST,
-    user=DB_USER,
-    password=DB_PASSWORD,
-    database=DB_NAME
-)
+# --- Database Connection and Setup ---
+try:
+    if not all([DB_HOST, DB_USER, DB_PASSWORD, DB_NAME]):
+        # 1.  Establish Connection
+        mydb = mysql.connector.connect (
+            host=DB_HOST,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            database=DB_NAME
+        )
+        # 2. Set Cursor Object to execute SQL Queries
+        mycursor = mydb.cursor()
 
-# Set Cursor Object to execut SQL Queries
-mycursor = mydb.cursor()
+except mysql.connector.Error as err:
+    print(f"Database Connection Error: {err}")
+    # Exit gracefully if connection fails
+    exit(1)
+except ValueError as err:
+    print(f"Configuration Error: {err}")
+    exit(1)
 
-# Set variable log data to run function from log_collector.py
+# 3. Retrieve Log Data
 log_data = parse_journalctl_verbose_today_filtered()
 
-sql_insert = "INSERT INTO ${DB_NAME} ('TIMESTAMP', 'MESSAGE', '_HOSTNAME', '_COMM', '_PID', 'PRIORITY', 'SYSLOG_IDENTIFIER', %s, %s, %s, %s, %s, %s, %s)"
+if not log_data:
+    print("No log data to insert. Exiting.")
+    mycursor.close()
+    mydb.close()
+    exit(0)
 
-values = ('TIMESTAMP', 'MESSAGE', '_HOSTNAME', '_COMM', '_PID', 'PRIORITY', 'SYSLOG_IDENTIFIER')
-
-for value in values:
-    if value:
-        mycursor.executemany(sql_insert, values)
-    else:
-        break
-
-
-# Commit Changes
-mydb.commit()
+# --- SQL Insertion Logic ---
+COLUMNS_SQL = [f'`{col}`' if col == 'TIMESTAMP' else col for col in TARGET_KEYS]
+COLUMN_NAMES_STR = ", ".join(COLUMNS_SQL)
+PLACEHOLDERS_STR = ", ".join(["%s"] * len(TARGET_KEYS))
 
 
+sql_insert = (
+    f"INSERT INTO {TABLE_NAME} ({COLUMN_NAMES_STR}) "
+    f"VALUES ({PLACEHOLDERS_STR})"
+)
+print(f"Generated SQL Template: {sql_insert}")
+
+# --- Dataq Preparation for executemany ---
+data_to_insert = []
+for record in log_data:
+    row_tuple = tuple(record.get(key) for key in TARGET_KEYS)
+    data_to_insert.append(row_tuple)
+
+print(f"Prepared {len(data_to_insert)} records for insertion.")
+
+# --- Execution ---
+try:
+    mycursor.executemany(sql_insert, data_to_insert)
+    mydb.commit()
+
+    print(f"Successfully inserted {mycursor.rowcount} records into the database.")
+
+except mysql.connector.Error as err:
+    print(f"SQL Insertion Error: {err}")
+    mydb.rollback()
+
+finally:
 # Close out 
-mycursor.close()
-mydb.close()
+    mycursor.close()
+    mydb.close()
+    print("Database connection closed.")
