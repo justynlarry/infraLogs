@@ -1,4 +1,4 @@
-import mysql.connector
+import pymysql
 import os
 from log_collector import parse_journalctl_verbose_today_filtered, TARGET_KEYS
 from dotenv import load_dotenv
@@ -12,6 +12,16 @@ DB_NAME = os.environ.get("MYSQL_DATABASE")
 DB_PORT = os.environ.get("MYSQL_PORT", 3306)
 TABLE_NAME = "log_table"
 
+COLUMN_MAP = {
+    "TIMESTAMP": "record_time",
+    "MESSAGE": "message",
+    "_HOSTNAME": "hostname",
+    "_COMM": "command_name",
+    "_PID": "process_id",
+    "PRIORITY": "priority",
+    "SYSLOG_IDENTIFIER": "syslog_id",
+}
+
 mydb = None
 mycursor = None
 connection_successful = False
@@ -22,20 +32,19 @@ try:
        raise ValueError("Missing one or more required environment variables for MySQL connection.")
 
         # 1.  Establish Connection
-    mydb = mysql.connector.connect (
+    mydb = pymysql.connect (
         host=DB_HOST,
         user=DB_USER,
         password=DB_PASSWORD,
         database=DB_NAME,
         port=int(DB_PORT),
-        auth_plugin='mysql_native_password'
     )
     # 2. Set Cursor Object to execute SQL Queries
     mycursor = mydb.cursor()
     print("mySQL connection established successfully.")
     connection_successful = True
 
-except mysql.connector.Error as err:
+except pymysql.MySQLError as err:
     print(f"Database Connection Error: {err}")
     # Exit gracefully if connection fails
     exit(1)
@@ -57,7 +66,7 @@ if not log_data:
     exit(0)
 
 # --- SQL Insertion Logic ---
-COLUMNS_SQL = [f'`{col}`' if col == 'TIMESTAMP' else col for col in TARGET_KEYS]
+COLUMNS_SQL = [COLUMN_MAP[key] for key in TARGET_KEYS]
 COLUMN_NAMES_STR = ", ".join(COLUMNS_SQL)
 PLACEHOLDERS_STR = ", ".join(["%s"] * len(TARGET_KEYS))
 
@@ -83,7 +92,7 @@ try:
 
     print(f"Successfully inserted {mycursor.rowcount} records into the database.")
 
-except mysql.connector.Error as err:
+except pymysql.MySQLError as err:
     print(f"SQL Insertion Error: {err}")
     if mydb:
         mydb.rollback()
