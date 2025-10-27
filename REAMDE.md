@@ -95,15 +95,15 @@ Begin turning Password Rotator System into a Modular 'Plug In', that can be expo
 
 # Logs Quick Reference:
  Quick Reference
-## Code	Level Name	Meaning
-```
-0	emerg	System is unusable
-1	alert	Immediate action required
-2	crit	Critical condition
-3	err	Error condition
-4	warning	Warning condition
-5	notice	Normal but significant condition
-6	info	Informational
-7	debug	Debug-level message
+111
+Code	Level Name	  Meaning
+0	    emerg	        System is unusable
+1	    alert  	      Immediate action required
+2	    crit  	      Critical condition
+3	    err	          Error condition
+4	    warning	      Warning condition
+5	    notice    	  Normal but significant condition
+6	    info	        Informational
+7	    debug	        Debug-level message
 ```
 
