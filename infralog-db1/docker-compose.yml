@@ -19,7 +19,7 @@ services:
       --server-id=1
       --log-bin=mysql-bin
       --bind-address=0.0.0.0
-      --binlog-do-db=my_app_db
+      --binlog-do-db=infralogDb01
 
 volumes:
   primary_data:
