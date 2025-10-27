@@ -96,6 +96,7 @@ Begin turning Password Rotator System into a Modular 'Plug In', that can be expo
 # Logs Quick Reference:
  Quick Reference
 ## Code	Level Name	Meaning
+```
 0	emerg	System is unusable
 1	alert	Immediate action required
 2	crit	Critical condition
@@ -104,5 +105,5 @@ Begin turning Password Rotator System into a Modular 'Plug In', that can be expo
 5	notice	Normal but significant condition
 6	info	Informational
 7	debug	Debug-level message
-
+```
 
