@@ -103,7 +103,7 @@ Code	Level Name	 Meaning
 3	    err	         Error condition
 4	    warning	     Warning condition
 5	    notice    	 Normal but significant condition
-6	    info	       Informational
-7	    debug	       Debug-level message
+6	    info         Informational
+7	    debug        Debug-level message
 ```
 
