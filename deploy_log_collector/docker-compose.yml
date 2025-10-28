@@ -1,7 +1,17 @@
 services:
   python-log-collector:
     build: .
-    ports:
-      - "8000:8000"
+    container_name: python-log-collector
+    restart: always
+    environment:
+      MYSQL_HOST: db-svr01
+      MYSQL_USER: vault_injected_user
+      MYSQL_PASSWORD: vault_injected_pass
+      MYSQL_DATABASE: infralogDb01
+      MYSQL_PORT: 3306
     volumes:
       - .:/app
+      privileged: true
+      volumes:
+        - /var/log/journal:/var/log/journal:ro
+        - /run/log/journal:/run/log/journal:ro
