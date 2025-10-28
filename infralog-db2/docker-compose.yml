@@ -19,6 +19,11 @@ services:
       --server-id=2
       --read-only=1
       --relay-log=mysql-relay-bin
+      --gtid_mode=ON
+      --enforce-gtid-consistency=ON
+      --log-slave-updates=ON
+      --binlog-format=ROW
+      --sync-binlog=1
 
 volumes:
   replica-data:
