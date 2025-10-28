@@ -20,6 +20,8 @@ services:
       --log-bin=mysql-bin
       --bind-address=0.0.0.0
       --binlog-do-db=infralogDb01
+      --gtid_mode=ON
+      --enforce-gtid-consistency=ON
 
 volumes:
   primary_data:
