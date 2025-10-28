@@ -13,16 +13,6 @@ TARGET_KEYS = [
     'SYSLOG_IDENTIFIER'
 ]
 
-COLUMN_MAP = {
-    "TIMESTAMP": "record_time",
-    "MESSAGE": "message",
-    "_HOSTNAME": "hostname",
-    "_COMM": "command_name",
-    "_PID": "process_id",
-    "PRIORITY": "priority",
-    "SYSLOG_IDENTIFIER": "syslog_id",
-}
-
 def parse_journalctl_verbose_today_filtered():
     """
     Executes 'journalctl --since today', parses the output, 
