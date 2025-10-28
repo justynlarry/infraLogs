@@ -22,6 +22,10 @@ services:
       --binlog-do-db=infralogDb01
       --gtid_mode=ON
       --enforce-gtid-consistency=ON
+      --binlog_expire_logs_seconds=604800
+      --log-slave-updates=ON
+      --binlog-format=ROW
+      --sync-binlog=1
 
 volumes:
   primary_data:
