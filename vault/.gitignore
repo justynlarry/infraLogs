@@ -1,0 +1,4 @@
+/certs
+certs/reseal-vault
+certs/ca.pem
+data/
