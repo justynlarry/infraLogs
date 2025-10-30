@@ -8,10 +8,11 @@ services:
       - ./config:/vault/config
       - ./data:/vault/data
       - ./logs:/vault/logs
-      - ./certs:/vault/certs
+      - ./certs:/vault/certs:z
     cap_add:
       - IPC_LOCK
     environment:
-      - VAULT_ADDR=http://127.0.0.1:8200
-      - VAULT_API_ADDR=http://127.0.0.1:8200
+      - VAULT_ADDR=https://127.0.0.1:8200
+#      - VAULT_API_ADDR=https://127.0.0.1:8200
+      - VAULT_CACERT=/vault/certs/ca.pem
     command: "vault server -config=/vault/config/vault-config.hcl"
