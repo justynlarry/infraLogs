@@ -108,7 +108,6 @@ def parse_journalctl_verbose_today_filtered():
         
     return records
 
-# --- Execution Example ---
 parsed_records_filtered = parse_journalctl_verbose_today_filtered()
 
 print(f"\nSuccessfully parsed {len(parsed_records_filtered)} log records.")
