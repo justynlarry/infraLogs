@@ -1,6 +1,6 @@
 import pymysql
 import os
-from log_collector import parse_journalctl_verbose_today_filtered, TARGET_KEYS
+from parse_critical_logs import parse_journalctl_verbose_today_filtered, TARGET_KEYS
 from dotenv import load_dotenv
 
 load_dotenv()
