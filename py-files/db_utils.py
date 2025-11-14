@@ -1,5 +1,6 @@
 import pymysql, os
 from mysql_export import critical_logs_insert
+sql_insert, data_to_insert = critical_logs_insert
 from dotenv import load_dotenv
 
 load_dotenv()

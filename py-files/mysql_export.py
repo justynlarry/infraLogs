@@ -1,11 +1,11 @@
 import pymysql
+import pandas as pd
 import os
 from parse_critical_logs import parse_journalctl_verbose_today_filtered, TARGET_KEYS
 
 
 def critical_logs_insert():
     TABLE_NAME = "vm_critical_logs_table"
-
     COLUMN_MAP = {
         "TIMESTAMP": "record_time",
         "MESSAGE": "message",
@@ -37,7 +37,7 @@ def critical_logs_insert():
         row_tuple = tuple(record.get(key) for key in TARGET_KEYS)
         data_to_insert.append(row_tuple)
 
-    return sql_insert, data_to_insert
+        return sql_insert, data_to_insert
     print(f"Prepared {len(data_to_insert)} records for insertion.")
 
   
