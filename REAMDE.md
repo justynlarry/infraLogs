@@ -95,6 +95,10 @@ Begin turning Password Rotator System into a Modular 'Plug In', that can be expo
 
 # Logs Quick Reference:
  Quick Reference
+
+
+
+
 ```
 Code	Level Name	 Meaning
 0	    emerg        System is unusable
@@ -106,4 +110,42 @@ Code	Level Name	 Meaning
 6	    info         Informational
 7	    debug        Debug-level message
 ```
+
+
+# Updated Log Collection Architecture (in progress 11/14/2025)
+```
++-------------------------------------------------------------+
+|                      mysql_exporter.py                      |
+|  (Main Orchestrator: runs parsers, sends to MySQL)          |          +-------------------------------+
++-------------------------------------------------------------+          |  System Report on sys-monitor |
+                              |                                          |                               | 
+                              v                                          +-----------+-------------------+
++-------------------------------------------------------------+                      |
+|                      parse_report.py                        |<---------------------+
+|  (Dispatch logic: selects parser module based on report)    |
++-------------------------------------------------------------+
+                                 |
+          +----------------------+-------------------+-------------------+-------------------+
+          |                      |                   |                   |                   |                   
+          v                      v                   v                   v                   v
++-------------------+    +--------------------+    +-------------------+    +---------------------------+
+| parse_storage_    |    | parse_failed_      |    | parse_failed_     |    | parse_critical_logs_       |
+| report.py         |    | services_report.py |    | ssh_report.py     |    | priority_report.py         |
+| (df -h output)    |    | (service failures) |    | (SSH auth fails)  |    | (priority=1–3 only)        |
++-------------------+    +--------------------+    +-------------------+    +----------------------------+
+          |                      |                     |                                      |
+          |                      |                     |                                      |
+          +-------------------+--*---------------------+--------------------------------------+
+                              |
+                              v
++-------------------------------------------------------------+
+|                    db_utils.py (MySQL handler)              |
+|  Inserts data -> correct MySQL table:                       |
+|    - vm_storage_table                                       |
+|    - vm_failed_services_table                               |
+|    - vm_failed_ssh_table                                    |
+|    - vm_critical_priority_table                             |
++-------------------------------------------------------------+
+```
+
 
