@@ -1,43 +1,51 @@
-import pymysql
-import pandas as pd
-import os
-from parse_critical_logs import parse_journalctl_verbose_today_filtered, TARGET_KEYS
+import pymysql, os
+from run_export import critical_logs_insert
+sql_insert, data_to_insert = critical_logs_insert
+from dotenv import load_dotenv
 
+load_dotenv()
 
-def critical_logs_insert():
-    TABLE_NAME = "vm_critical_logs_table"
-    COLUMN_MAP = {
-        "TIMESTAMP": "record_time",
-        "MESSAGE": "message",
-        "_HOSTNAME": "hostname",
-        "_COMM": "command_name",
-        "_PID": "process_id",
-        "PRIORITY": "priority",
-        "SYSLOG_IDENTIFIER": "syslog_id",
-    }
+DB_HOST = os.environ.get("MYSQL_HOST")
+DB_USER = os.environ.get("MYSQL_USER")
+DB_PASSWORD= os.environ.get("MYSQL_PASSWORD")
+DB_NAME = os.environ.get("MYSQL_DATABASE")
+DB_PORT = os.environ.get("MYSQL_PORT", 3306)
 
-    # 3. Retrieve Log Data
-    log_data = parse_journalctl_verbose_today_filtered()
-
-
-    # --- SQL Insertion Logic ---
-    COLUMNS_SQL = [COLUMN_MAP[key] for key in TARGET_KEYS]
-    COLUMN_NAMES_STR = ", ".join(COLUMNS_SQL)
-    PLACEHOLDERS_STR = ", ".join(["%s"] * len(TARGET_KEYS))
-
-    sql_insert = (
-        f"INSERT INTO {TABLE_NAME} ({COLUMN_NAMES_STR}) "
-        f"VALUES ({PLACEHOLDERS_STR})"
+def get_db(): 
+    return pymysql.connect (
+        host=DB_HOST,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        database=DB_NAME,
+        port=int(DB_PORT),
     )
-    print(f"Generated SQL Template: {sql_insert}")
 
-    # --- Dataq Preparation for executemany ---
-    data_to_insert = []
-    for record in log_data:
-        row_tuple = tuple(record.get(key) for key in TARGET_KEYS)
-        data_to_insert.append(row_tuple)
+def insert_records(table_name, column_names, row_data_list):
+    """
+    Inserts multiple rows into MySQL
+    column_names = [col1, col2, ...]
+    row_data_list = [(val1,val2,...), (...), ...]
+    """
 
-        return sql_insert, data_to_insert
-    print(f"Prepared {len(data_to_insert)} records for insertion.")
+    if not row_data_list:
+            print("No records to insert.")
+            return
 
-  
+    placeholder = ", ".join(["%s"] * len(column_names))
+    col_str = ", ".join(column_names)
+
+    sql = f"INSERT INTO {table_name} ({col_str}) VALUES ({placeholder})"
+
+    db = get_db()
+    cur = db.cursor()
+
+    try:
+        cur.executemany(sql, row_data_list)
+        db.commit()
+        print(f"Inserted {cur.rowcount} rows.")
+    except Exception as e:
+        print("DB insert failed:", e)
+        db.rollback()
+    finally:
+        cur.close()
+        db.close()
