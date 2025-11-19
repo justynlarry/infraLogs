@@ -1,5 +1,6 @@
 import subprocess
 import re
+from parse_metadata import host_information
 from datetime import datetime, date
 
 # DEFINE TARGET KEYS:
@@ -14,27 +15,9 @@ TARGET_KEYS = [
 ]
 
 def parse_journalctl_verbose_today_filtered():
-    """
-    Executes 'journalctl --since today', parses the output, 
-    and returns a list of dictionaries (records) containing ONLY the TARGET_KEYS.
-    """
-    
-    journalctl_command = ["journalctl", "-o", "verbose", "--no-pager", "--since", "today"]
+   with open(filename, "r") as f:
+    for line in f:
 
-    print(f"Executing command: {' '.join(journalctl_command)}")
-
-    try:
-        result = subprocess.run(
-            journalctl_command, 
-            capture_output=True, 
-            text=True, 
-            check=True
-        )
-        log_output = result.stdout
-    except subprocess.CalledProcessError as e:
-        print(f"Error running journalctl: {e}")
-        print(f"Stderr: {e.stderr}")
-        return []
 
     # Initialize storage
     records = []
