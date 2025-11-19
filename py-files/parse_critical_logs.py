@@ -1,6 +1,6 @@
 import re
 from parse_metadata import extract_host_metadata
-from datetime import datetime, date
+from datetime import datetime
 
 # DEFINE TARGET KEYS:
 TARGET_KEYS = [
@@ -12,7 +12,7 @@ TARGET_KEYS = [
     'PRIORITY',
     'SYSLOG_IDENTIFIER'
 ]
-RECROD_START_RE = re.compile(
+RECORD_START_RE = re.compile(
     r'^\w{3}\s\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{6}\s\w{3}(\s+\[.*\]| \[.*\])$'
 )
 

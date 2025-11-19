@@ -1,43 +1,30 @@
-import pymysql
-import pandas as pd
-import os
-from parse_critical_logs import parse_journalctl_verbose_today_filtered, TARGET_KEYS
+from parse_critical_logs import parse_report, TARGET_KEYS
+from mysql_export import insert_records
+from datetime import datetime
 
+TABLE_NAME = "log_table"
 
-def critical_logs_insert():
-    TABLE_NAME = "vm_critical_logs_table"
-    COLUMN_MAP = {
-        "TIMESTAMP": "record_time",
-        "MESSAGE": "message",
-        "_HOSTNAME": "hostname",
-        "_COMM": "command_name",
-        "_PID": "process_id",
-        "PRIORITY": "priority",
-        "SYSLOG_IDENTIFIER": "syslog_id",
-    }
+FINAL_COLUMNS = TARGET_KEYS + [
+    "REPORT_HOST",
+    "REPORT_DATE",
+    "REPORT_UUID"
+]
 
-    # 3. Retrieve Log Data
-    log_data = parse_journalctl_verbose_today_filtered()
+def main():
 
+    today = datetime.today().strftime("%Y-%m-%d")
+    filename = f"../../vm_system_reports/vm_system_report_{today}.log"
 
-    # --- SQL Insertion Logic ---
-    COLUMNS_SQL = [COLUMN_MAP[key] for key in TARGET_KEYS]
-    COLUMN_NAMES_STR = ", ".join(COLUMNS_SQL)
-    PLACEHOLDERS_STR = ", ".join(["%s"] * len(TARGET_KEYS))
+    records = parse_report(filename)
 
-    sql_insert = (
-        f"INSERT INTO {TABLE_NAME} ({COLUMN_NAMES_STR}) "
-        f"VALUES ({PLACEHOLDERS_STR})"
-    )
-    print(f"Generated SQL Template: {sql_insert}")
+    print(f"Parsed {len(records)} structured log entries.")
 
-    # --- Dataq Preparation for executemany ---
-    data_to_insert = []
-    for record in log_data:
-        row_tuple = tuple(record.get(key) for key in TARGET_KEYS)
-        data_to_insert.append(row_tuple)
+    rows = [
+        tuple(rec.get(col) for col in FINAL_COLUMNS)
+        for rec in records
+    ]
 
-        return sql_insert, data_to_insert
-    print(f"Prepared {len(data_to_insert)} records for insertion.")
+    insert_records(TABLE_NAME, FINAL_COLUMNS, rows)
 
-  
+if __name__ == "__main__":
+    main()
