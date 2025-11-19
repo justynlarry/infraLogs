@@ -2,7 +2,7 @@ from parse_critical_logs import parse_report, TARGET_KEYS
 from mysql_export import insert_records
 from datetime import datetime
 
-TABLE_NAME = "log_table"
+TABLE_NAME = "critical_logs"
 
 FINAL_COLUMNS = TARGET_KEYS + [
     "REPORT_HOST",
