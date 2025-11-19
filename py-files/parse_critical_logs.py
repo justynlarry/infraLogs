@@ -1,6 +1,5 @@
-import subprocess
 import re
-from parse_metadata import host_information
+from parse_metadata import extract_host_metadata
 from datetime import datetime, date
 
 # DEFINE TARGET KEYS:
@@ -13,88 +12,78 @@ TARGET_KEYS = [
     'PRIORITY',
     'SYSLOG_IDENTIFIER'
 ]
+RECROD_START_RE = re.compile(
+    r'^\w{3}\s\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{6}\s\w{3}(\s+\[.*\]| \[.*\])$'
+)
 
-def parse_journalctl_verbose_today_filtered():
-   with open(filename, "r") as f:
-    for line in f:
+def parse_report(filename):
+    """
+    Input:  A full Ansible Report containing multiple hosts.
+    Output: A list of parsed log dicitionaries.
+    """
 
+    with open(filename, "r") as f:
+        lines = f.readlines()
 
-    # Initialize storage
-    records = []
-    current_record = {}
-    
-    timestamp_pattern = re.compile(r'^\w{3}\s\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{6}\s\w{3}(\s+\[.*\]| \[.*\])$')
-    lines = log_output.splitlines()
+    blocks = []
+    current = []
 
     for line in lines:
-        line = line.strip()
+        if line.startswith('--- Host:') and current:
+            blocks.append(current)
+            current = []
+        current.append(line)
 
-        if not line:
+    if current:
+        blocks.append(current)
+    
+    all_records = []
+
+    for block in blocks:
+        hostname, report_date, uuid = extract_host_metadata(block)
+
+        try:
+            start_idx = next(
+                i for i, l in enumerate(block)
+                if l.startswith('--- CRITICAL LOGS BY PRIORITY ---')
+            )
+        except StopIteration:
             continue
 
-        # 1. Start of a new record
-        if timestamp_pattern.match(line):
-            # If the current record is complete, filter and store it
-            if current_record:
-                # --- NEW FILTERING LOGIC ---
-                filtered_record = {
-                    key: current_record.get(key)
-                    for key in TARGET_KEYS 
-                    if key in current_record # Only include keys that were found in the log
-                }
-                records.append(filtered_record)
-                # ---------------------------
+        record_lines = block[start_idx +1:]
 
-            current_record = {}
-            
-            # Parsing the date/time (always done to set the 'TIMESTAMP' field)
-            date_match = re.search(r'^(\w{3}\s\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{6}\s\w{3})', line)
-            if date_match:
-                full_date_string = date_match.group(1)
+        current_record = {}
+        for i, lin in enumerate(record_lines):
+            line = line.rstrip()
+
+            if RECORD_START_RE.match(line):
+
+                if current_record:
+                    current_record["REPORT_HOST"] = hostname
+                    current_record["REPORT_DATE"] = report_date
+                    current_record["REPORT_UUID"] = uuid
+                    all_records.append(current_record)
+                current_record = {}
+
+                timestamp_part = line.split(" [")[0]
                 try:
-                    dt_obj = datetime.strptime(full_date_string, '%a %Y-%m-%d %H:%M:%S.%f %Z')
-                    current_record['TIMESTAMP'] = dt_obj
-                except ValueError:
-                    # Storing string as fallback, but only if 'TIMESTAMP' is a target key
-                    if 'TIMESTAMP' in TARGET_KEYS:
-                        current_record['TIMESTAMP_STRING'] = full_date_string
-            
-            # Parsing the structured metadata (s, i, b, m, t, x)
-            metadata_match = re.search(r'\[(.*)\]', line)
-            if metadata_match:
-                metadata_str = metadata_match.group(1)
-                for item in metadata_str.split(';'):
-                    if '=' in item:
-                        key, value = item.split('=', 1)
-                        # We only temporarily store these keys if they are in the TARGET_KEYS
-                        if key.upper() in TARGET_KEYS:
-                            current_record[key.upper()] = value
-            
-        # 2. Handle regular key-value lines
-        elif current_record and '=' in line:
-            key, value = line.split('=', 1)
-            # --- MODIFIED CAPTURE LOGIC ---
-            # Only store the key if it's in the list of target keys
-            if key.upper().strip() in TARGET_KEYS:
-                current_record[key.upper().strip()] = value.strip()
-            # ------------------------------
+                    dt = datetime.strptime(
+                        timestamp_part, "%a %Y-%m-%d %H:%M:%S.%f %Z"
+                     )
+                    current_record["TIMESTAMP"] = dt
+                except:
+                    current_record["TIMESTAMP"] = timestamp_part
+            elif current_record and "=" in line:
+                k, v = line.strip().split("=", 1)
+                k = k.strip()
+                v = v.strip()
 
-    # Append the very last record
-    if current_record:
-        # --- NEW FILTERING LOGIC ---
-        filtered_record = {
-            key: current_record.get(key)
-            for key in TARGET_KEYS 
-            if key in current_record
-        }
-        records.append(filtered_record)
+                if k.upper() in TARGET_KEYS:
+                    current_record[k.upper()] = v
         
-    return records
-
-parsed_records_filtered = parse_journalctl_verbose_today_filtered()
-
-print(f"\nSuccessfully parsed {len(parsed_records_filtered)} log records.")
-if parsed_records_filtered:
-    print(f"\n--- First Filtered Record (Keys Used: {', '.join(TARGET_KEYS)}) ---")
-    for key, value in parsed_records_filtered[0].items():
-        print(f"**{key}**: {value}")
+        if current_record:
+            current_record["REPORT_HOST"] = hostname
+            current_record["REPORT_DATE"] = report_date
+            current_record["REPORT_UUID"] = uuid
+            all_records.append(current_record)
+    return all_records
