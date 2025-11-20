@@ -21,6 +21,9 @@ DB_COLUMNS = [
     "avail",
     "use_percentage",
     "mounted_on"
+    "report_host",
+    "report_date",
+    "report_uuid"
 ]
 
 def main():
@@ -42,5 +45,5 @@ def main():
 
     insert_records(TABLE_NAME, DB_COLUMNS, rows)
 
-if __name__ == "main":
+if __name__ == "__main__":
     main()
