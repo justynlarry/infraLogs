@@ -1,5 +1,5 @@
-import pymysql, os
-from dotenv import load_dotenv
+import pymysql, os # type: ignore
+from dotenv import load_dotenv # type: ignore
 
 load_dotenv()
 
