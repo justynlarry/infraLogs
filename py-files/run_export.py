@@ -5,10 +5,30 @@ from datetime import datetime
 
 TABLE_NAME = "critical_logs"
 
-FINAL_COLUMNS = TARGET_KEYS + [
-    "REPORT_HOST",
-    "REPORT_DATE",
-    "REPORT_UUID"
+COLUMN_MAPPING = {
+    'TIMESTAMP':        'record_time',
+    'MESSAGE':           'message',
+    '_HOSTNAME':        'hostname',
+    '_COMM':            'command_name',
+    '_PID':             'process_id',
+    'PRIORITY':         'priority',
+    'SYSLOG_IDENTIFIER':'syslog_id',
+    'REPORT_HOST':      'report_host',
+    'REPORT_DATE':      'report_date',
+    'REPORT_UUID':      'report_uuid'
+}
+
+DB_COLUMNS = [
+    "record_time",
+    "message",
+    "hostname",
+    "command_name",
+    "process_id",
+    "priority",
+    "syslog_id",
+    "report_host",
+    "report_date",
+    "report_uuid"
 ]
 
 def main():
@@ -20,12 +40,15 @@ def main():
 
     print(f"Parsed {len(records)} structured log entries.")
 
-    rows = [
-        tuple(rec.get(col) for col in FINAL_COLUMNS)
-        for rec in records
-    ]
+    rows = []
+    for rec in records:
+        row = tuple(
+            rec.get(parsed_key)
+            for parsed_key in TARGET_KEYS + ["REPORT_HOST", "REPORT_DATE", "REPORT_UUID"]
+        )
+        rows.append(row)
 
-    insert_records(TABLE_NAME, FINAL_COLUMNS, rows)
+    insert_records(TABLE_NAME, DB_COLUMNS, rows)
 
 if __name__ == "__main__":
     main()
