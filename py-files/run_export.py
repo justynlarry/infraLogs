@@ -1,3 +1,4 @@
+import os
 from parse_critical_logs import parse_report, TARGET_KEYS
 from mysql_export import insert_records
 from datetime import datetime

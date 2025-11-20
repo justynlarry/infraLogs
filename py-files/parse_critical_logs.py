@@ -45,7 +45,7 @@ def parse_report(filename):
         try:
             start_idx = next(
                 i for i, l in enumerate(block)
-                if l.startswith('--- CRITICAL LOGS BY PRIORITY ---')
+                if l.startswith('===BEGIN:CRITICAL_LOGS_PRIORITY===')
             )
         except StopIteration:
             continue
@@ -53,7 +53,7 @@ def parse_report(filename):
         record_lines = block[start_idx +1:]
 
         current_record = {}
-        for i, lin in enumerate(record_lines):
+        for i, line in enumerate(record_lines):
             line = line.rstrip()
 
             if RECORD_START_RE.match(line):
