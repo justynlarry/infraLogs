@@ -32,7 +32,7 @@ def insert_records(table_name, column_names, row_data_list):
     placeholder = ", ".join(["%s"] * len(column_names))
     col_str = ", ".join(column_names)
 
-    sql = f"INSERT INTO {table_name} ({col_str}) VALUES ({placeholder}) ON DUPLICATE KEY UPDATE message=VALUES(message)"
+    sql = f"INSERT IGNORE INTO {table_name} ({col_str}) VALUES ({placeholder})"
 
     db = get_db()
     cur = db.cursor()

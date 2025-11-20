@@ -62,7 +62,7 @@ def parse_storage(filename):
             fields = line.split()
             if len(fields) >=6:
                 record = {
-                "FILESYSTEM":       fields[0],
+                "FILE_SYSTEM":      fields[0],
                 "SIZE":             fields[1],
                 "USED":             fields[2],
                 "AVAIL":            fields[3],
