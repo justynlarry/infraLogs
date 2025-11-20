@@ -56,21 +56,21 @@ def parse_storage(filename):
         for line in storage_lines:
             line=line.rstrip()
 
-            if not line or line.startwith('Filesystem'):
+            if not line or line.startswith('Filesystem'):
                 continue
 
             fields = line.split()
             if len(fields) >=6:
                 record = {
-                "Filesystem":   fields[0],
-                "Size":         fields[1],
-                "Used":         fields[2],
-                "Avail":        fields[3],
-                "Use%":         fields[4],
-                "Mounted On":   fields[5],
-                "REPORT_HOST":  hostname,
-                "REPORT_DATE":  report_date,
-                "REPORT_UUID":  uuid
+                "FILESYSTEM":       fields[0],
+                "SIZE":             fields[1],
+                "USED":             fields[2],
+                "AVAIL":            fields[3],
+                "USE_PERCENTAGE":   fields[4],
+                "MOUNTED_ON":       fields[5],
+                "REPORT_HOST":      hostname,
+                "REPORT_DATE":      report_date,
+                "REPORT_UUID":      uuid
                 }
                 all_records.append(record)
     return all_records

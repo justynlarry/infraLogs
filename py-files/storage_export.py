@@ -20,7 +20,7 @@ DB_COLUMNS = [
     "used",
     "avail",
     "use_percentage",
-    "mounted_on"
+    "mounted_on",
     "report_host",
     "report_date",
     "report_uuid"
