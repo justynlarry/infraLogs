@@ -12,17 +12,21 @@ COLUMN_MAPPING = {
     'SOURCE_PORT':      'source_port',
     'ATTEMPTED_USER':   'attempted_user',
     'LOG_LINE':         'log_line',
+    'FAILURE_TYPE':     'failure_type',
+    'INVALID_USER':     'invalid_user',
     'REPORT_HOST':      'report_host',
     'REPORT_DATE':      'report_date',
     'REPORT_UUID':      'report_uuid'
 }
 
-DB_COLUMMS = [
+DB_COLUMNS = [
     "timestamp",
     "source_ip",
     "source_port",
     "attempted_user",
     "log_line",
+    "failure_type",
+    "invalid_user",
     "report_host",
     "report_date",
     "report_uuid"
