@@ -4,7 +4,8 @@ import subprocess
 scripts = [
     "critical_logs_export.py",
     "storage_export.py",
-    "failed_svc_export.py"
+    "failed_svc_export.py",
+    "failed_ssh_export.py"
 ]
 
 for script in scripts:
