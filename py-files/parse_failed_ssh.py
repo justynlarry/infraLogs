@@ -7,7 +7,9 @@ TARGET_KEYS = [
     'SOURCE_IP',
     'SOURCE_PORT',
     'ATTEMPTED_USER',
-    'LOG_LINE'
+    'LOG_LINE',
+    'FAILURE_TYPE',
+    'INVALID_USER'
 ]
 
 SSH_FAILURE_PATTERNS = [
@@ -64,32 +66,44 @@ def parse_failed_ssh(filename):
             
             # Extract timestamp
             timestamp_match = re.match(r'^(\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2})', line)
-            timestamp = timestamp_match.group(1) if timestamp_match else None
+            if timestamp_match:
+                ts_str = timestamp_match.group(1)
+                # Extract year from report_date (format: "YYYY-MM-DD")
+                year = report_date.split('-')[0]
+                # Parse the timestamp with the year
+                try:
+                    timestamp = datetime.strptime(f"{year} {ts_str}", "%Y %b %d %H:%M:%S")
+                except ValueError:
+                    timestamp = None
+            else:
+                timestamp = None
             
             for pattern in SSH_FAILURE_PATTERNS:
                 match = re.search(pattern, line)
                 if match:
                     record = {
-                        "hostname":         hostname,
-                        "report_date":      report_date,
-                        "uuid":             uuid,
-                        "timestamp":        timestamp,
-                        "source_ip":        match.group(2) if len(match.groups()) >= 2 else None,
-                        "source_port":      match.group(3) if len(match.groups()) >= 3 else None,
-                        "attempted_user":   match.group(1),
-                        "log_line":         line
+                        "REPORT_HOST":         hostname,
+                        "REPORT_DATE":      report_date,
+                        "REPORT_UUID":             uuid,
+                        "TIMESTAMP":        timestamp,
+                        "SOURCE_IP":        match.group(2) if len(match.groups()) >= 2 else None,
+                        "SOURCE_PORT":      match.group(3) if len(match.groups()) >= 3 else None,
+                        "ATTEMPTED_USER":   match.group(1),
+                        "LOG_LINE":         line,
+                        "FAILURE_TYPE":     None,
+                        "INVALID_USER":     False
                     }
                     
                     # Determine failure type
                     if "Failed password" in line:
-                        record["failure_type"] = "failed_password"
-                        record["invalid_user"] = "invalid user" in line
+                        record["FAILURE_TYPE"] = "failed_password"
+                        record["INVALID_USER"] = "invalid user" in line
                     elif "Invalid user" in line:
-                        record["failure_type"] = "invalid_user"
-                        record["invalid_user"] = True
+                        record["FAILURE_TYPE"] = "invalid_user"
+                        record["INVALID_USER"] = True
                     elif "Connection closed" in line:
-                        record["failure_type"] = "connection_closed"
-                        record["invalid_user"] = "invalid user" in line
+                        record["FAILURE_TYPE"] = "connection_closed"
+                        record["INVALID_USER"] = "invalid user" in line
                     
                     all_records.append(record)
                     break  # Stop after first matching pattern
