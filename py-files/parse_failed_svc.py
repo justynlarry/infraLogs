@@ -24,7 +24,7 @@ def parse_failed_svc(filename):
     current = []
 
     for line in lines:
-        if line.starstwith('--- Host:') and current:
+        if line.startswith('--- Host:') and current:
             blocks.append(current)
             current = []
         current.append(line)
@@ -53,10 +53,10 @@ def parse_failed_svc(filename):
         for line in storage_lines:
             line=line.rstrip()
 
-            if not line or line.startswith('UNIT'):
+            if not line or line.startswith('  UNIT'):
                 continue
 
-            if line.startswith("0 loaded"):
+            if not line or line.startswith("0 loaded units listed."):
                 continue
 
             fields = line.split()

@@ -7,7 +7,7 @@ TABLE_NAME = "failed_svcs"
 
 COLUMN_MAPPING = {
     'UNIT':         'unit',
-    'LOAD':         'load',
+    'LOAD':         'svc_load',
     'ACTIVE':       'active',
     'SUB':          'sub',
     'DESCRIPTION':  'description',
@@ -18,7 +18,7 @@ COLUMN_MAPPING = {
 
 DB_COLUMNS = [
     "unit",
-    "load",
+    "svc_load",
     "active",
     "sub",
     "description",
