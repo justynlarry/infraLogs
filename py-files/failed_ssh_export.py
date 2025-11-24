@@ -32,7 +32,7 @@ def main():
     today = datetime.today().strftime("%Y-%m-%d")
     filename = f"../../vm_system_reports/vm_system_report_{today}.log"
 
-    records = parse_report(filename)
+    records = parse_failed_ssh(filename)
 
     print(f"Parsed {len(records)} structured log entries.")
 
