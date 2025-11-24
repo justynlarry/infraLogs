@@ -24,7 +24,7 @@ def parse_failed_svc(filename):
     current = []
 
     for line in lines:
-        if line.startwith('--- Host:') and current:
+        if line.starstwith('--- Host:') and current:
             blocks.append(current)
             current = []
         current.append(line)
@@ -44,7 +44,7 @@ def parse_failed_svc(filename):
             )
             end_idx = next(
                 i for i, l in enumerate(block)
-                if l.startswith('===END:FAILED_SERVICES==')
+                if l.startswith('===END:FAILED_SERVICES===')
             )
         except StopIteration:
             continue
@@ -54,6 +54,9 @@ def parse_failed_svc(filename):
             line=line.rstrip()
 
             if not line or line.startswith('UNIT'):
+                continue
+
+            if line.startswith("0 loaded"):
                 continue
 
             fields = line.split()

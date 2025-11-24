@@ -10,7 +10,10 @@ COLUMN_MAPPING = {
     'LOAD':         'load',
     'ACTIVE':       'active',
     'SUB':          'sub',
-    'DESCRIPTION':  'description'
+    'DESCRIPTION':  'description',
+    'REPORT_HOST':  'report_host',
+    'REPORT_DATE':  'report_date',
+    'REPORT_UUID':  'report_uuid'
 }
 
 DB_COLUMNS = [
