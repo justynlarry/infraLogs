@@ -1,38 +1,34 @@
-import os
-from parse_critical_logs import parse_report, TARGET_KEYS
+import re
+from parse_failed_ssh import parse_failed_ssh, TARGET_KEYS
 from mysql_export import insert_records
+from parse_metadata import extract_host_metadata
 from datetime import datetime
 
-TABLE_NAME = "critical_logs"
+TABLE_NAME = "failed_ssh"
 
 COLUMN_MAPPING = {
-    'TIMESTAMP':        'record_time',
-    'MESSAGE':          'message',
-    '_HOSTNAME':        'hostname',
-    '_COMM':            'command_name',
-    '_PID':             'process_id',
-    'PRIORITY':         'priority',
-    'SYSLOG_IDENTIFIER':'syslog_id',
+    'TIMESTAMP':        'timestamp',
+    'SOURCE_IP':        'source_ip',
+    'SOURCE_PORT':      'source_port',
+    'ATTEMPTED_USER':   'attempted_user',
+    'LOG_LINE':         'log_line',
     'REPORT_HOST':      'report_host',
     'REPORT_DATE':      'report_date',
     'REPORT_UUID':      'report_uuid'
 }
 
-DB_COLUMNS = [
-    "record_time",
-    "message",
-    "hostname",
-    "command_name",
-    "process_id",
-    "priority",
-    "syslog_id",
+DB_COLUMMS = [
+    "timestamp",
+    "source_ip",
+    "source_port",
+    "attempted_user",
+    "log_line",
     "report_host",
     "report_date",
     "report_uuid"
 ]
 
 def main():
-
     today = datetime.today().strftime("%Y-%m-%d")
     filename = f"../../vm_system_reports/vm_system_report_{today}.log"
 
@@ -51,4 +47,4 @@ def main():
     insert_records(TABLE_NAME, DB_COLUMNS, rows)
 
 if __name__ == "__main__":
-    main()
+    main() 

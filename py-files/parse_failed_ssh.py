@@ -2,13 +2,22 @@ import re
 from parse_metadata import extract_host_metadata
 from datetime import datetime
 
+TARGET_KEYS = [
+    'TIMESTAMP',
+    'SOURCE_IP',
+    'SOURCE_PORT',
+    'ATTEMPTED_USER',
+    'LOG_LINE'
+]
+
+
 SSH_FAILURE_PATTERNS = [
     r'Failed password for (?:invalid user )?(\S+) from ([\d.]+) port (\d+)',
     r'Invalid user (\S+) from ([\d.]+) port (\d+)',
     r'Connection closed by (?:invalid user |authenticating user )?(\S+) ([\d.]+) port (\d+)',
 ]
 
-def parse_faile_ssh(filename):
+def parse_failed_ssh(filename):
     """
     Parse Failed SSH Login attempts from the vm_system_report
     Returns a list of dictionaries with SSH Failure data
