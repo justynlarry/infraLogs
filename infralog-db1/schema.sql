@@ -1,3 +1,7 @@
+// To Update Schema:
+//	docker exec -it infralogDbPrim mysqldump -u root -p --no-data infralogDb01 > schema.sql
+
+
 mysqldump: [Warning] Using a password on the command line interface can be insecure.
 -- MySQL dump 10.13  Distrib 9.5.0, for Linux (x86_64)
 --
