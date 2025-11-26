@@ -85,6 +85,10 @@ a.  Create MySQL Database on db-svr01 and Replica on db-svr02 in Docker Containe
 
 b.  Test System on Dummy VMs to make sure it correctly stores log data
 
+
+--> To update MySQL schema:  ```docker exec -it infralogDbPrim mysqldump -u root -p --no-data infralogDb01 > schema.sql'''
+
+
 ## Phase 3 - Create Basic Dashboard in Python-Bokeh
 a.  Write Python code for Bokeh Dashboard
 
