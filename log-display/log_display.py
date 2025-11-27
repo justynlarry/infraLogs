@@ -7,6 +7,8 @@ import mysql.connector
 import pandas as pd
 import os
 from datetime import datetime
+from waitress import serve
+
 
 app = Flask(__name__)
 
@@ -30,10 +32,10 @@ def get_storage_data():
         conn = get_db_connection()
 
         query = f"""
-            SELECT host, filesystem, use_percentage, mounted_on
+            SELECT report_host, use_percentage, mounted_on
             FROM storage_logs
             WHERE report_date = CURDATE()
-            ORDER BY host, filesystem
+            ORDER BY report_host, mounted_on
         """
     
         df = pd.read_sql(query, conn)
@@ -67,9 +69,7 @@ def create_storage_plot(df):
         toolbar_location="above"
     )
 
-    df['host_display'] = df['report_host'] + ' - ' + df['filesystem']
-
-    vm_hosts = df['report_host'].unique
+    vm_hosts = df['report_host'].unique()
     colors = Category20_20
 
     for i, host in enumerate(vm_hosts):
@@ -85,17 +85,61 @@ def create_storage_plot(df):
             legend_label=host
         )
 
+    hover = HoverTool(
+        tooltips=[
+            ("Host", "@report_host"),
+            ("Mount Point", "@mounted_on"),
+            ("Usage", "@use_percentage")
+        ]
+    )
+
+    p.add_tools(hover)
+
+    p.legend.location = "top_right"
+    p.legend.click_policy = "hide"
+
+    p.xaxis.major_label_orientation = 0.785
+
+    return p
+
 @app.route('/')
 def dashboard():
 
     df = get_storage_data()
     plot = create_storage_plot(df)
     script, div = components(plot)
-    return render_template('dashboard.html', script=script, div=div)
 
+    if not df.empty:
+        df['use_percentage_numeric'] = df['use_percentage'].str.rstrip('%').astype(int)
+        avg_usage = df['use_percentage_numeric'].mean()
+        max_usage = df['use_percentage_numeric'].max()
+        total_filesystems = len(df)
+    else:
+        avg_usage = 0
+        max_usage = 0
+        total_filesystems = 0
+    
+    return render_template(
+        'dashboard.html',
+        script=script,
+        div=div,
+        avg_usage=round(avg_usage, 1),
+        max_usage=max_usage,
+        total_filesystems=total_filesystems,
+        last_updated=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    )
 
+@app.route('/health')
+def health():
+    """Health check endpoint"""
+    try:
+        conn = get_db_connection()
+        conn.close()
+        return {'status': 'healthy', 'database': 'connected'}, 200
+    except Exception as e:
+        return {'status': 'unhealthy', 'error': str(e)}, 500
+    
 if __name__ == '__main__':
-    from waitress import serve
     port = int(os.getenv('PORT', 5000))
     print(f"Dashboard running at http://100.120.87.36:{port}")
     serve(app, host='100.120.87.36', port=port)

@@ -3,3 +3,4 @@ flask
 bokeh
 mysql.connector
 pandas
+waitress
