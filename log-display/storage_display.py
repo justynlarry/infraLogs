@@ -47,5 +47,5 @@ def health():
     
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
-    print(f"Dashboard running at http://100.120.87.36:{port}")
-    serve(app, host='100.120.87.36', port=port)
+    print(f"Dashboard running at http://0.0.0.0:{port}")
+    serve(app, host='0.0.0.0', port=port)
