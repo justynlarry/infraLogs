@@ -1,4 +1,5 @@
 import mysql.connector
+from dotenv import load_dotenv
 
 def get_db_connection():
     """
