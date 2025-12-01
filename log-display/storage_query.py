@@ -1,7 +1,7 @@
 import pandas as pd
 from mysql_import import get_db_connection
 
-def get_storage_data():
+def get_storage_data(days=7):
     """
     Fetch Storage data from MySQL infralogDb01 -> table: storage_logs
     """
@@ -9,10 +9,10 @@ def get_storage_data():
         conn = get_db_connection()
 
         query = f"""
-            SELECT report_host, use_percentage, mounted_on
+            SELECT report_date, report_host, use_percentage, mounted_on
             FROM storage_logs
-            WHERE report_date = CURDATE()
-            ORDER BY report_host, mounted_on
+            WHERE report_date = DATE_SUB(CURDATE(), INTERVAL {days} DAY)
+            ORDER BY report_host, mounted_on, report_date
         """
     
         df = pd.read_sql(query, conn)

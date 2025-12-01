@@ -11,7 +11,8 @@ app = Flask(__name__)
 @app.route('/')
 def dashboard():
 
-    df = get_storage_data()
+    days = request.args.get('days', 7, type=int)
+    df = get_storage_data(days)
     plot = create_storage_plot(df)
     script, div = components(plot)
 
@@ -19,7 +20,9 @@ def dashboard():
         df['use_percentage_numeric'] = df['use_percentage'].str.rstrip('%').astype(int)
         avg_usage = df['use_percentage_numeric'].mean()
         max_usage = df['use_percentage_numeric'].max()
-        total_filesystems = len(df)
+
+        df['filesystem_label'] = df['report_host'] + ' - ' + df['mounted_on']
+        total_filesystems = df['filesystem_label'].nunique()
     else:
         avg_usage = 0
         max_usage = 0
@@ -32,6 +35,7 @@ def dashboard():
         avg_usage=round(avg_usage, 1),
         max_usage=max_usage,
         total_filesystems=total_filesystems,
+        days=days,
         last_updated=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     )
 

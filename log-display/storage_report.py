@@ -4,7 +4,7 @@ from bokeh.palettes import Category20_20
 
 def create_storage_plot(df):
     """
-    Create Bokeh Plot from DataFrame
+    Create Bokeh line chart showing storage usage over time
     """
     if df.empty:
         p = figure(title="No Data Available.", width=1200, height=600)
@@ -16,44 +16,53 @@ def create_storage_plot(df):
     df['label'] = df['report_host'] + '\n' + df['mounted_on']
 
     p = figure(
-        x_range=df['label'].tolist(),  
         title="Storage Usage by Host",
-        x_axis_label="Host / Mount Point",
+        x_axis_type='datetime',
+        x_axis_label="Date",
         y_axis_label='Usage (%)', 
         width=1200,
         height=600,
         toolbar_location="above"
     )
 
-    vm_hosts = df['report_host'].unique()
+    filesystems = df['filesystem_label'].unique()
     colors = Category20_20
 
-    for i, host in enumerate(vm_hosts):
-        storage_data = df[df['report_host'] == host]
-        source = ColumnDataSource(storage_data)
+    for i, fs in enumerate(filesystems):
+        fs_data = df[df['filesystem_label'] == fs]
+        source = ColumnDataSource(fs_data)
 
-        p.vbar(
-            x='label',
-            top='use_percentage_numeric',
+        color = colors[i % len(colors)]
+
+        p.line('report_date', 'use_percentage_numeric',
             source=source,
-            width=0.5,
-            color=colors[i],
-            legend_label=host
+            legend_label=fs,
+            line_width=2,
+            color=color,
+            alpha=0.8
         )
+
+        p.circle('report_date', 'use_percentage_numeric',
+                 source=source,
+                 size=6,
+                 color=color,
+                 alpha=0.8
+                 )
 
     hover = HoverTool(
         tooltips=[
             ("Host", "@report_host"),
             ("Mount Point", "@mounted_on"),
+            ("Date", "@report_date{%F}"),
             ("Usage", "@use_percentage")
-        ]
+        ],
+        formatters={'@report_date': 'datetime'}
     )
 
     p.add_tools(hover)
 
     p.legend.location = "top_right"
     p.legend.click_policy = "hide"
-
-    p.xaxis.major_label_orientation = 0.785
+    p.legend.label_text_font_size = "8pt"
 
     return p
