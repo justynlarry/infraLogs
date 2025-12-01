@@ -3,7 +3,7 @@
 FROM python:3.11-slim
 
 # Set Working Directory
-WORKDIR /log-display
+WORKDIR log-display/
 
 # Install system dependencies
 RUN apt update && apt-get install -y \
@@ -20,8 +20,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Create non-root user for security
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /log-display
-USER appuser
+#RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /log-display
+#USER appuser
 
 # Expose Port
 EXPOSE 5000

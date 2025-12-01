@@ -6,3 +6,4 @@ pandas
 waitress
 cryptography
 pymysql[rsa]
+dotenv
