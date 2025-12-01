@@ -3,9 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="styles/style.css" rel="stylesheet">
+    <!-- Bokeh CSS -->
+    <link href="https://cdn.bokeh.org/bokeh/release/bokeh-3.3.0.min.css" rel="stylesheet">
+    <link href="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.3.0.min.css" rel="stylesheet">
+    
+    <!-- Bokeh JS -->
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.3.0.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.3.0.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.3.0.min.js"></script>
+    
+
     <title>Phoenix Infralog Charts</title>
 </head>
 <body>
-    
+    <div class="container">
+        <h1>Infralog Database Display</h1>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-label">Average Storage Usage</div>
+                <div class="stat-value">{{ avg_usage }}%</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Peak Usage</div>
+                <div class="stat-value">{{ max_usage }}%</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Total Filesystems</div>
+                <div class="stat-value">{{ total_filesystems }}</div>
+            </div>
+        </div>
+        
+        <div class="plot-container">
+            {{ div|safe }}
+        </div>
+        
+        {{ script|safe }}
+        
+        <div class="footer">
+            Last updated: {{ last_updated }} | 
+            <a href="/health" style="color: #007bff;">Health Check</a>
+        </div>
+    </div>
 </body>
 </html>
