@@ -1,6 +1,7 @@
 from bokeh.plotting import figure
 from bokeh.models import HoverTool, ColumnDataSource
 from bokeh.palettes import Category20_20
+from pandas import pd
 
 def create_storage_plot(df):
     """
@@ -11,9 +12,8 @@ def create_storage_plot(df):
         return p
     
     df['use_percentage_numeric'] = df['use_percentage'].str.rstrip('%').astype(int)
-
-# Create unique labels for x-axis (host + filesystem)
-    df['label'] = df['report_host'] + '\n' + df['mounted_on']
+    df['report_date'] = pd.to_datetime(df['report_date'])
+    df['filesystem_label'] = df['report_host'] + ' - ' + df['mounted_on']
 
     p = figure(
         title="Storage Usage by Host",
