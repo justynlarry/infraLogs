@@ -3,7 +3,6 @@ from bokeh.embed import components
 from bokeh.plotting import figure
 from bokeh.models import HoverTool, ColumnDataSource
 from bokeh.palettes import Category20_20
-import mysql.connector
 import pandas as pd
 import os
 from datetime import datetime
@@ -11,18 +10,6 @@ from waitress import serve
 
 
 app = Flask(__name__)
-
-def get_db_connection():
-    """
-    Create MySQL connection using envrionment variables.
-    """
-    return mysql.connector.connect(
-        host=os.getenv('MYSQL_HOST'),
-        port=int(os.getenv('MYSQL_PORT', 3306)),
-        user=os.getenv('MYSQL_USER'),
-        password=os.getenv('MYSQL_PASSWORD'),
-        database=os.getenv('MYSQL_DATABASE')
-    )
 
 def get_storage_data():
     """
@@ -60,10 +47,10 @@ def create_storage_plot(df):
     df['label'] = df['report_host'] + '\n' + df['mounted_on']
 
     p = figure(
-        x_range=df['label'].tolist(),  # ✅ Categories on x-axis
+        x_range=df['label'].tolist(),  
         title="Storage Usage by Host",
-        x_axis_label="Host / Mount Point",  # ✅ Categories
-        y_axis_label='Usage (%)',  # ✅ Percentage values
+        x_axis_label="Host / Mount Point",
+        y_axis_label='Usage (%)', 
         width=1200,
         height=600,
         toolbar_location="above"
