@@ -1,7 +1,7 @@
 from bokeh.plotting import figure
 from bokeh.models import HoverTool, ColumnDataSource
 from bokeh.palettes import Category20_20
-from pandas import pd
+import pandas as pd
 
 def create_storage_plot(df):
     """
