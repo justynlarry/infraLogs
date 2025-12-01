@@ -7,3 +7,4 @@ waitress
 cryptography
 pymysql[rsa]
 dotenv
+mysql-connector-python
