@@ -33,8 +33,20 @@
                 <div class="stat-label">Total Filesystems</div>
                 <div class="stat-value">{{ total_filesystems }}</div>
             </div>
+            <div class = "stat-box">
+                <div class="stat-label">Filesystems Monitored</div>
+                <div class="stat-value">{{ days }} Days</div>
+            </div>
         </div>
         
+        <div class="controls">
+            <strong>Time Range:</strong>
+            <a href="?days=1" {% if days == 1 %}class="active"{% endif %}>Today</a>
+            <a href="?days=7" {% if days == 7 %}class="active"{% endif %}>7 Days</a>
+            <a href="?days=30" {% if days == 30 %}class="active"{% endif %}>30 Days</a>
+            <a href="?days=90" {% if days == 90 %}class="active"{% endif %}>90 Days</a>
+        </div>
+
         <div class="plot-container">
             {{ div|safe }}
         </div>
