@@ -3,7 +3,7 @@
 FROM python:3.11-slim
 
 # Set Working Directory
-WORKDIR log-display/
+WORKDIR app/
 
 # Install system dependencies
 RUN apt update && apt-get install -y \

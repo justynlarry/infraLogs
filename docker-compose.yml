@@ -3,7 +3,7 @@ services:
   dashboard:
     build:
       context: ./log-display
-      dockerfile: ../Dockerfile
+      dockerfile: Dockerfile
     container_name: infralogs-dashboard
     ports:
       - "5000:5000"
