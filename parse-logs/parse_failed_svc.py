@@ -66,7 +66,10 @@ def parse_failed_svc(filename):
                     "LOAD":         fields[1],
                     "ACTIVE":       fields[2],
                     "SUB":          fields[3],
-                    "DESCRIPTION":  fields[4]
+                    "DESCRIPTION":  fields[4],
+                    "REPORT_HOST":      hostname,
+                    "REPORT_DATE":      report_date,
+                    "REPORT_UUID":      uuid
                 }
                 all_records.append(record)
     return all_records
